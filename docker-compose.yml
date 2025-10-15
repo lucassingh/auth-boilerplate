@@ -1,0 +1,50 @@
+services:
+  web:
+    build: .
+    container_name: auth_boilerplate_api
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/auth_boilerplate
+    depends_on:
+      - db
+    env_file:
+      - .env
+    networks:
+      - auth_network
+
+  db:
+    image: postgres:15
+    container_name: auth_boilerplate_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=auth_boilerplate
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    networks:
+      - auth_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: auth_boilerplate_pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - auth_network
+
+volumes:
+  postgres_data:
+
+networks:
+  auth_network:
+    driver: bridge
